@@ -38,8 +38,32 @@ func (o *OgSolver) Address() string {
 	return o.account.Address
 }
 
-func (o *OgSolver) SendTx() {
+func (o *OgSolver) SendTx(tx Transaction) (string, error) {
+	url := o.url + "/new_transaction"
 
+	priv, _ := HexToBytes(o.PrivateKey())
+	sig, err := tx.Sign(priv)
+	if err != nil {
+		return "", fmt.Errorf("sign error: %v", err)
+	}
+	sigStr := BytesToHex(sig)
+
+	txReq := NewTransactionReq(tx, sigStr, o.PublicKey())
+	resp, err := o.doPostRequest(url, txReq)
+	if err != nil {
+		return "", fmt.Errorf("get nonce error: %v", err)
+	}
+
+	var hashResp NewTxResp
+	err = json.Unmarshal(resp, &hashResp)
+	if err != nil {
+		return "", fmt.Errorf("unmarshal response to json error: %v", err)
+	}
+	if hashResp.Err != "" {
+		return "", fmt.Errorf("server error: %s", hashResp.Err)
+	}
+
+	return hashResp.Hash, nil
 }
 
 func (o *OgSolver) QueryNonce(address string) (uint64, error) {
@@ -125,7 +149,7 @@ func (o *OgSolver) doGetRequest(url string) ([]byte, error) {
 	return body, nil
 }
 
-func (o *OgSolver) doPostRequest(url string, reqBody map[string]string) ([]byte, error) {
+func (o *OgSolver) doPostRequest(url string, reqBody interface{}) ([]byte, error) {
 	reqBodyData, err := json.Marshal(reqBody)
 	if err != nil {
 		return nil, fmt.Errorf("marshal request body error: %v", err)

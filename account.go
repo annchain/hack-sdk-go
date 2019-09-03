@@ -7,7 +7,6 @@ import (
 	"crypto/elliptic"
 	crand "crypto/rand"
 	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"golang.org/x/crypto/sha3"
 	"io"
@@ -23,7 +22,7 @@ type OgAccount struct {
 }
 
 func NewAccount(privHex string) (*OgAccount, error) {
-	priv, err := hex.DecodeString(privHex)
+	priv, err := HexToBytes(privHex)
 	if err != nil {
 		return nil, fmt.Errorf("decode hex private error: %v", err)
 	}
