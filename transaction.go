@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/annchain/hack-sdk-go/secp256k1"
+	"github.com/annchain/OG/common/crypto/secp256k1"
 )
 
 type Transaction struct {
