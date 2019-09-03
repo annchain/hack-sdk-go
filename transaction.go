@@ -11,6 +11,13 @@ import (
 	"github.com/annchain/OG/common/crypto/secp256k1"
 )
 
+var (
+	EmptyAddress = "0000000000000000000000000000000000000000"
+	EmptyHash    = "0000000000000000000000000000000000000000000000000000000000000000"
+	EmptyUint64  = uint64(0)
+	EmptyBigInt  = big.NewInt(0)
+)
+
 type Transaction struct {
 	Parents   []string
 	From      string
@@ -42,6 +49,9 @@ func (tx *Transaction) SignatureTarget() ([]byte, error) {
 	}
 	binary.Write(msg, binary.BigEndian, fromBytes)
 
+	if tx.To == "" {
+		tx.To = EmptyAddress
+	}
 	toBytes, err := HexToBytes(tx.To)
 	if err != nil {
 		return nil, fmt.Errorf("invalid TO: %v", err)
@@ -49,10 +59,18 @@ func (tx *Transaction) SignatureTarget() ([]byte, error) {
 	binary.Write(msg, binary.BigEndian, toBytes)
 
 	// write value
-	binary.Write(msg, binary.BigEndian, tx.Value.Bytes())
+	value := tx.Value.Bytes()
+	if tx.Value.Int64() == 0 {
+		value = []byte{0}
+	}
+	binary.Write(msg, binary.BigEndian, value)
 
 	// write guarantee
-	binary.Write(msg, binary.BigEndian, tx.Guarantee.Bytes())
+	guarantee := tx.Guarantee.Bytes()
+	if tx.Guarantee.Int64() == 0 {
+		guarantee = []byte{0}
+	}
+	binary.Write(msg, binary.BigEndian, guarantee)
 
 	return msg.Bytes(), nil
 }

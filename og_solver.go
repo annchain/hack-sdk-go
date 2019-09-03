@@ -106,6 +106,18 @@ func (o *OgSolver) QueryBalance(address string) (string, error) {
 	return balanceResp.Data.Balance, nil
 }
 
+// TODO
+func (o *OgSolver) QueryTransaction(hash string) (*TransactionResp, error) {
+
+	return nil, nil
+}
+
+// TODO
+func (o *OgSolver) QueryTxByHeight(height uint64) ([]TransactionResp, error) {
+
+	return nil, nil
+}
+
 func (o *OgSolver) QueryAllTipsInPool() (*PoolTxs, error) {
 	url := o.url + "/query_pool_tips"
 	return o.queryPoolTxs(url)

@@ -9,6 +9,14 @@ func main() {
 
 	// ----------- query pool txs ----------------
 
+	//tx := Transaction{
+	//	Parents:
+	//}
+	//
+	//resp, err := og.SendTx()
+
+	// ----------- query pool txs ----------------
+
 	resp, err := og.QueryAllTipsInPool()
 	if err != nil {
 		fmt.Println(err)
