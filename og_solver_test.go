@@ -30,6 +30,20 @@ func TestOgSolver_QueryBalance(t *testing.T) {
 	}
 }
 
+func TestOgSolver_QueryTransaction(t *testing.T) {
+	url := "http://localhost:8000"
+	priv := "af1b6df8cc06d79902029c0e446c3dc2788893185759d2308b5bb10aa0614b7d"
+	og, _ := NewOgSolver(url, priv)
+
+	hash := "0xa80f781e993539ca0b9b76696a1aab3e5b39e3290cdc85840ae3b90694a25e55"
+	tx, err := og.QueryTransaction(hash)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("tx: %v", tx)
+}
+
 func TestOgSolver_SendTx(t *testing.T) {
 	url := "http://localhost:8000"
 

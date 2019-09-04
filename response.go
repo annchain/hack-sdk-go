@@ -19,7 +19,7 @@ type QueryBalanceRespData struct {
 	Balance string `json:"balance"`
 }
 
-type QueryTxsResp struct {
+type QueryPoolTxsResp struct {
 	Data PoolTxs `json:"data"`
 	Err  string  `json:"err"`
 }
@@ -28,8 +28,18 @@ type PoolTxs struct {
 	Txs []TransactionResp `json:"transactions"`
 }
 
+type QueryTxsResp struct {
+	Data []TransactionResp `json:"data"`
+	Err  string            `json:"err"`
+}
+
+type QueryTransactionResp struct {
+	Data TransactionResp `json:"data"`
+	Err  string          `json:"err"`
+}
+
 type TransactionResp struct {
-	Type      string   `json:"type"`
+	Type      int      `json:"type"`
 	Hash      string   `json:"hash"`
 	Parents   []string `json:"parents"`
 	From      string   `json:"from"`
@@ -39,8 +49,13 @@ type TransactionResp struct {
 	Value     string   `json:"value"`
 }
 
+type QuerySequencerResp struct {
+	Data SequencerResp `json:"data"`
+	Err  string        `json:"err"`
+}
+
 type SequencerResp struct {
-	Type     string   `json:"type"`
+	Type     int      `json:"type"`
 	Hash     string   `json:"hash"`
 	Parents  []string `json:"parents"`
 	From     string   `json:"from"`

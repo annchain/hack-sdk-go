@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 type OgSolver struct {
@@ -51,7 +52,7 @@ func (o *OgSolver) SendTx(tx Transaction) (string, error) {
 	txReq := NewTransactionReq(tx, sigStr, o.PublicKey())
 	resp, err := o.doPostRequest(url, txReq)
 	if err != nil {
-		return "", fmt.Errorf("get nonce error: %v", err)
+		return "", fmt.Errorf("send tx error: %v", err)
 	}
 
 	var hashResp NewTxResp
@@ -106,16 +107,80 @@ func (o *OgSolver) QueryBalance(address string) (string, error) {
 	return balanceResp.Data.Balance, nil
 }
 
-// TODO
 func (o *OgSolver) QueryTransaction(hash string) (*TransactionResp, error) {
+	url := o.url + "/transaction?hash=" + hash
 
-	return nil, nil
+	resp, err := o.doGetRequest(url)
+	if err != nil {
+		return nil, fmt.Errorf("get transaction error: %v", err)
+	}
+
+	var txResp QueryTransactionResp
+	err = json.Unmarshal(resp, &txResp)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal response to json error: %v", err)
+	}
+	if txResp.Err != "" {
+		return nil, fmt.Errorf("server error: %s", txResp.Err)
+	}
+
+	return &txResp.Data, nil
 }
 
-// TODO
-func (o *OgSolver) QueryTxByHeight(height uint64) ([]TransactionResp, error) {
+func (o *OgSolver) QuerySequencerByHash(hash string) (*SequencerResp, error) {
+	url := o.url + "/sequencer?hash=" + hash
+	return o.querySequencer(url)
+}
 
-	return nil, nil
+func (o *OgSolver) QuerySequencerByHeight(height uint64) (*SequencerResp, error) {
+	url := o.url + "/sequencer?height=" + strconv.Itoa(int(height))
+	return o.querySequencer(url)
+}
+
+func (o *OgSolver) querySequencer(url string) (*SequencerResp, error) {
+	resp, err := o.doGetRequest(url)
+	if err != nil {
+		return nil, fmt.Errorf("get sequencer error: %v", err)
+	}
+
+	var seqResp QuerySequencerResp
+	err = json.Unmarshal(resp, &seqResp)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal response to json error: %v", err)
+	}
+	if seqResp.Err != "" {
+		return nil, fmt.Errorf("server error: %s", seqResp.Err)
+	}
+
+	return &seqResp.Data, nil
+}
+
+func (o *OgSolver) QueryTxsByAddress(address string) ([]TransactionResp, error) {
+	url := o.url + "/transactions?address=" + address
+	return o.queryTxs(url)
+}
+
+func (o *OgSolver) QueryTxsByHeight(height uint64) ([]TransactionResp, error) {
+	url := o.url + "/transactions?height=" + strconv.Itoa(int(height))
+	return o.queryTxs(url)
+}
+
+func (o *OgSolver) queryTxs(url string) ([]TransactionResp, error) {
+	resp, err := o.doGetRequest(url)
+	if err != nil {
+		return nil, fmt.Errorf("get sequencer error: %v", err)
+	}
+
+	var txsResp QueryTxsResp
+	err = json.Unmarshal(resp, &txsResp)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal response to json error: %v", err)
+	}
+	if txsResp.Err != "" {
+		return nil, fmt.Errorf("server error: %s", txsResp.Err)
+	}
+
+	return txsResp.Data, nil
 }
 
 func (o *OgSolver) QueryAllTipsInPool() (*PoolTxs, error) {
@@ -134,7 +199,7 @@ func (o *OgSolver) queryPoolTxs(url string) (*PoolTxs, error) {
 		return nil, fmt.Errorf("get txs error: %v", err)
 	}
 
-	var poolResp QueryTxsResp
+	var poolResp QueryPoolTxsResp
 	err = json.Unmarshal(resp, &poolResp)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal response to json error: %v", err)
