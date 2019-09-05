@@ -5,18 +5,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/Shopify/sarama"
+)
+
+const (
+	TxBaseTypeNormal int = iota
+	TxBaseTypeSequencer
 )
 
 type OgSolver struct {
-	url     string
-	account *OgAccount
+	url        string
+	kafkaUrl   string
+	kafkaTopic string
+	account    *OgAccount
 }
 
-func NewOgSolver(url string, privHex string) (*OgSolver, error) {
+func NewOgSolver(url, kafkaUrl, privHex string) (*OgSolver, error) {
 	og := &OgSolver{}
 	og.url = url
+	og.kafkaUrl = kafkaUrl
+	og.kafkaTopic = "hack"
 
 	acc, err := NewAccount(privHex)
 	if err != nil {
@@ -65,6 +77,20 @@ func (o *OgSolver) SendTx(tx Transaction) (string, error) {
 	}
 
 	return hashResp.Hash, nil
+}
+
+func (o *OgSolver) ReceiveNewestTx() <-chan *TxiResp {
+	c := make(chan *TxiResp)
+
+	go o.kafkaConsume(c, sarama.OffsetNewest)
+	return c
+}
+
+func (o *OgSolver) ReceiveOldestTx() <-chan *TxiResp {
+	c := make(chan *TxiResp)
+
+	go o.kafkaConsume(c, sarama.OffsetOldest)
+	return c
 }
 
 func (o *OgSolver) QueryNonce(address string) (uint64, error) {
@@ -244,4 +270,60 @@ func (o *OgSolver) doPostRequest(url string, reqBody interface{}) ([]byte, error
 	}
 
 	return body, nil
+}
+
+func (o *OgSolver) kafkaConsume(receiver chan *TxiResp, offset int64) {
+	consumer, err := sarama.NewConsumer([]string{"localhost:9092"}, nil)
+	if err != nil {
+		log.Printf("create consumer error: %v\n", err)
+		return
+	}
+	defer func() {
+		if err := consumer.Close(); err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
+	partitionConsumer, err := consumer.ConsumePartition(o.kafkaTopic, 0, offset)
+	if err != nil {
+		log.Printf("create partition consumer error: %v\n", err)
+		return
+	}
+	defer func() {
+		if err := partitionConsumer.Close(); err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
+	for {
+		select {
+		case msg := <-partitionConsumer.Messages():
+			log.Printf("Consumed message offset %d\n", msg.Offset)
+
+			value := msg.Value
+
+			var txiResp TxiResp
+			json.Unmarshal(value, &txiResp)
+
+			if txiResp.Type == TxBaseTypeNormal {
+				txMap := txiResp.Data.(map[string]interface{})
+				tx := TransactionResp{}
+				tx.FromMap(txMap)
+
+				txiResp.Data = tx
+				receiver <- &txiResp
+				continue
+			}
+			if txiResp.Type == TxBaseTypeSequencer {
+				seqMap := txiResp.Data.(map[string]interface{})
+				seq := SequencerResp{}
+				seq.FromMap(seqMap)
+
+				txiResp.Data = seq
+				receiver <- &txiResp
+				continue
+			}
+
+		}
+	}
 }

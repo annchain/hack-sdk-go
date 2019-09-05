@@ -1,44 +1,69 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"golang.org/x/net/websocket"
+	"log"
+	"math/rand"
+	"time"
+)
+
+type Message struct {
+	Text string `json:"text"`
+}
 
 func main() {
-	url := "http://localhost:8000"
-
-	og, _ := NewOgSolver(url, "")
-
-	// ----------- query pool txs ----------------
-
-	//tx := Transaction{
-	//	Parents:
-	//}
+	//url := "http://localhost:8000"
 	//
-	//resp, err := og.SendTx()
+	//og, _ := NewOgSolver(url, "")
 
-	// ----------- query pool txs ----------------
-
-	resp, err := og.QueryAllTipsInPool()
+	// connect
+	ws, err := websocket.Dial("ws://localhost:19000", "", "http://localhost/")
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatal(err)
 	}
-	fmt.Println("resp:")
-	fmt.Println(resp)
+	defer ws.Close()
 
-	// ----------- query balance ----------------
+	// receive
+	var m Message
+	for {
+		time.Sleep(time.Second * 1)
 
-	//resp, err := og.QueryBalance("0x8b605f016cfe161f66eb7a0d8f97d2a9b098d3cc")
+		err := websocket.JSON.Receive(ws, &m)
+		if err != nil {
+			fmt.Println("Error receiving message: ", err.Error())
+			continue
+		}
+		fmt.Println("Message: ", m)
+	}
+
+	//origin := "http://localhost/"
+	//url := "ws://localhost:19000"
+	//ws, err := websocket.Dial(url, "", origin)
 	//if err != nil {
-	//	fmt.Println(err)
-	//	return
+	//	log.Fatal(err)
 	//}
+	////if _, err := ws.Write([]byte("hello, world!\n")); err != nil {
+	////	log.Fatal(err)
+	////}
 	//
-	//fmt.Println("resp: ", resp)
+	//fmt.Println("sleep 6 seconds")
+	//time.Sleep(time.Second * 6)
+	//
+	//var msg = make([]byte, 512)
+	//var n int
+	//if n, err = ws.Read(msg); err != nil {
+	//	log.Fatal(err)
+	//}
+	//fmt.Printf("Received: %s.\n", msg[:n])
 
-	// ----------- gen account ----------------
+}
 
-	//a := GenerateAccount()
-	//fmt.Println("priv: ", a.PrivateKey)
-	//fmt.Println("pub: ", a.PublicKey)
-	//fmt.Println("addr: ", a.Address)
+func mockedIP() string {
+	var arr [4]int
+	for i := 0; i < 4; i++ {
+		rand.Seed(time.Now().UnixNano())
+		arr[i] = rand.Intn(256)
+	}
+	return fmt.Sprintf("http://%d.%d.%d.%d", arr[0], arr[1], arr[2], arr[3])
 }

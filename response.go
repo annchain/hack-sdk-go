@@ -49,6 +49,17 @@ type TransactionResp struct {
 	Value     string   `json:"value"`
 }
 
+func (tr *TransactionResp) FromMap(m map[string]interface{}) {
+	tr.Type = m["type"].(int)
+	tr.Hash = m["hash"].(string)
+	tr.Parents = m["parents"].([]string)
+	tr.From = m["from"].(string)
+	tr.To = m["to"].(string)
+	tr.Nonce = m["nonce"].(uint64)
+	tr.Guarantee = m["guarantee"].(string)
+	tr.Value = m["value"].(string)
+}
+
 type QuerySequencerResp struct {
 	Data SequencerResp `json:"data"`
 	Err  string        `json:"err"`
@@ -62,4 +73,19 @@ type SequencerResp struct {
 	Nonce    uint64   `json:"nonce"`
 	Treasure string   `json:"treasure"`
 	Height   uint64   `json:"height"`
+}
+
+func (tr *SequencerResp) FromMap(m map[string]interface{}) {
+	tr.Type = m["type"].(int)
+	tr.Hash = m["hash"].(string)
+	tr.Parents = m["parents"].([]string)
+	tr.From = m["from"].(string)
+	tr.Nonce = m["nonce"].(uint64)
+	tr.Treasure = m["treasure"].(string)
+	tr.Height = m["height"].(uint64)
+}
+
+type TxiResp struct {
+	Type int         `json:"type"`
+	Data interface{} `json:"data"`
 }
