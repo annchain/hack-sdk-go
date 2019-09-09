@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	TxBaseTypeNormal int = iota
-	TxBaseTypeSequencer
+	TxTypeNormal int = iota
+	TxTypeSequencer
 )
 
 type OgSolver struct {
@@ -305,7 +305,7 @@ func (o *OgSolver) kafkaConsume(receiver chan *TxiResp, offset int64) {
 			var txiResp TxiResp
 			json.Unmarshal(value, &txiResp)
 
-			if txiResp.Type == TxBaseTypeNormal {
+			if txiResp.Type == TxTypeNormal {
 				txMap := txiResp.Data.(map[string]interface{})
 				tx := TransactionResp{}
 				tx.fromMap(txMap)
@@ -314,7 +314,7 @@ func (o *OgSolver) kafkaConsume(receiver chan *TxiResp, offset int64) {
 				receiver <- &txiResp
 				continue
 			}
-			if txiResp.Type == TxBaseTypeSequencer {
+			if txiResp.Type == TxTypeSequencer {
 				seqMap := txiResp.Data.(map[string]interface{})
 				seq := SequencerResp{}
 				seq.fromMap(seqMap)
