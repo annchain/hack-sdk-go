@@ -48,6 +48,10 @@ fmt.Println("balance is: ", balance)
 
 Send a transaction:
 ```go
+import (
+	"math/big"
+)
+
 // query nonce
 nonce, err := ogSolver.QueryNonce(ogSolver.Address())
 if err != nil {
@@ -63,7 +67,10 @@ tx := hackSDK.Transaction{}
 tx.Parents = parents
 tx.From = ogSolver.Address()
 tx.Nonce = nonce + 1
-tx.Guarantee = big.NewInt(100)
+tx.Guarantee = big.NewInt(100)  // the guarantee you want to bet
+
+tx.To = "the address you want to transfer value" // The address you want transfer value to. If you want to transfer value to someone, fill in this variable.
+tx.Value = big.NewInt(100)                       // The value you want to transfer. If you want to transfer value to someone, fill in this variable.
 
 // send tx
 hash, err := ogSolver.SendTx(tx)
