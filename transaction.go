@@ -59,6 +59,9 @@ func (tx *Transaction) SignatureTarget() ([]byte, error) {
 	binary.Write(msg, binary.BigEndian, toBytes)
 
 	// write value
+	if tx.Value == nil {
+		tx.Value = big.NewInt(0)
+	}
 	value := tx.Value.Bytes()
 	if tx.Value.Int64() == 0 {
 		value = []byte{0}
