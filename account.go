@@ -30,7 +30,7 @@ func newAccount(privHex string) (*OgAccount, error) {
 	_, ecdsapub := btcec.PrivKeyFromBytes(btcec.S256(), priv)
 	pub := FromECDSAPub((*ecdsa.PublicKey)(ecdsapub))
 
-	addr := keccak256(pub)[12:]
+	addr := keccak256(pub[1:])[12:]
 
 	a := OgAccount{}
 	a.PrivateKey = fmt.Sprintf("%x", priv)

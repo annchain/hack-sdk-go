@@ -7,11 +7,18 @@ import (
 )
 
 func TestGenerateAccount(t *testing.T) {
-	a := GenerateAccount()
+	//a := GenerateAccount()
+	//
+	//fmt.Println("priv: ", a.PrivateKey)
+	//fmt.Println("pub: ", a.PublicKey)
+	//fmt.Println("addr: ", a.Address)
 
-	fmt.Println("priv: ", a.PrivateKey)
-	fmt.Println("pub: ", a.PublicKey)
-	fmt.Println("addr: ", a.Address)
+	url := "http://localhost:8000"
+	kafkaUrl := "localhost:9092"
+	priv := "af1b6df8cc06d79902029c0e446c3dc2788893185759d2308b5bb10aa0614b7d"
+	og, _ := NewOgSolver(url, kafkaUrl, priv)
+
+	fmt.Println(og.Address())
 }
 
 func TestOgSolver_QueryBalance(t *testing.T) {
