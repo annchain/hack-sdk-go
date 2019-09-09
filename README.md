@@ -18,7 +18,7 @@ go get "github.com/annchain/hack-sdk-go"
 To get started with the SDK, import the package and create an OgSolver object:
 ```go
 import (
-	hackSDK "github.com/annchain/hack-sdk-go"
+    hackSDK "github.com/annchain/hack-sdk-go"
 )
 
 func main() {
