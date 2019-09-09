@@ -49,7 +49,7 @@ fmt.Println("balance is: ", balance)
 Send a transaction:
 ```go
 import (
-	"math/big"
+    "math/big"
 )
 
 // query nonce
