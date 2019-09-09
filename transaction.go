@@ -89,7 +89,7 @@ func (tx *Transaction) Sign(privBytes []byte) ([]byte, error) {
 	if len(hash) != 32 {
 		return nil, fmt.Errorf("hash is required to be exactly 32 bytes (%d)", len(hash))
 	}
-	seckey := PaddedBigBytes(priv.D, priv.Params().BitSize/8)
+	seckey := paddedBigBytes(priv.D, priv.Params().BitSize/8)
 	return secp256k1.Sign(hash, seckey)
 }
 
@@ -98,7 +98,7 @@ func (tx *Transaction) Sign(privBytes []byte) ([]byte, error) {
 // it can also accept legacy encodings (0 prefixes).
 func toECDSA(d []byte, strict bool) (*ecdsa.PrivateKey, error) {
 	priv := new(ecdsa.PrivateKey)
-	priv.PublicKey.Curve = S256()
+	priv.PublicKey.Curve = s256()
 	if strict && 8*len(d) != priv.Params().BitSize {
 		return nil, fmt.Errorf("invalid length, need %d bits", priv.Params().BitSize)
 	}
@@ -120,20 +120,20 @@ func toECDSA(d []byte, strict bool) (*ecdsa.PrivateKey, error) {
 	return priv, nil
 }
 
-// PaddedBigBytes encodes a big integer as a big-endian byte slice. The length
+// paddedBigBytes encodes a big integer as a big-endian byte slice. The length
 // of the slice is at least n bytes.
-func PaddedBigBytes(bigint *big.Int, n int) []byte {
+func paddedBigBytes(bigint *big.Int, n int) []byte {
 	if bigint.BitLen()/8 >= n {
 		return bigint.Bytes()
 	}
 	ret := make([]byte, n)
-	ReadBits(bigint, ret)
+	readBits(bigint, ret)
 	return ret
 }
 
-// ReadBits encodes the absolute value of bigint as big-endian bytes. Callers must ensure
+// readBits encodes the absolute value of bigint as big-endian bytes. Callers must ensure
 // that buf has enough space. If buf is too short the result will be incomplete.
-func ReadBits(bigint *big.Int, buf []byte) {
+func readBits(bigint *big.Int, buf []byte) {
 	i := len(buf)
 	for _, d := range bigint.Bits() {
 		for j := 0; j < wordBytes && i > 0; j++ {

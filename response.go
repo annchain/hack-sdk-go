@@ -49,7 +49,7 @@ type TransactionResp struct {
 	Value     string   `json:"value"`
 }
 
-func (t *TransactionResp) FromMap(m map[string]interface{}) {
+func (t *TransactionResp) fromMap(m map[string]interface{}) {
 	t.Type = int(m["type"].(float64))
 	t.Hash = m["hash"].(string)
 
@@ -82,7 +82,7 @@ type SequencerResp struct {
 	Height   uint64   `json:"height"`
 }
 
-func (s *SequencerResp) FromMap(m map[string]interface{}) {
+func (s *SequencerResp) fromMap(m map[string]interface{}) {
 	s.Type = int(m["type"].(float64))
 	s.Hash = m["hash"].(string)
 

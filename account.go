@@ -21,7 +21,7 @@ type OgAccount struct {
 	Address    string
 }
 
-func NewAccount(privHex string) (*OgAccount, error) {
+func newAccount(privHex string) (*OgAccount, error) {
 	priv, err := HexToBytes(privHex)
 	if err != nil {
 		return nil, fmt.Errorf("decode hex private error: %v", err)
@@ -30,7 +30,7 @@ func NewAccount(privHex string) (*OgAccount, error) {
 	_, ecdsapub := btcec.PrivKeyFromBytes(btcec.S256(), priv)
 	pub := FromECDSAPub((*ecdsa.PublicKey)(ecdsapub))
 
-	addr := Keccak256(pub)[12:]
+	addr := keccak256(pub)[12:]
 
 	a := OgAccount{}
 	a.PrivateKey = fmt.Sprintf("%x", priv)
@@ -46,14 +46,14 @@ func GenerateAccount() OgAccount {
 	a := OgAccount{}
 	a.PrivateKey = fmt.Sprintf("%x", priv)
 	a.PublicKey = fmt.Sprintf("%x", pub)
-	a.Address = fmt.Sprintf("%x", Keccak256(pub)[12:])
+	a.Address = fmt.Sprintf("%x", keccak256(pub)[12:])
 
 	return a
 }
 
 func randomKeyPair() (priv, pub []byte) {
 	privBytes := [32]byte{}
-	copy(privBytes[:], CRandBytes(32))
+	copy(privBytes[:], cRandBytes(32))
 
 	priv = privBytes[:]
 
@@ -63,7 +63,7 @@ func randomKeyPair() (priv, pub []byte) {
 	return priv, pub
 }
 
-func CRandBytes(numBytes int) []byte {
+func cRandBytes(numBytes int) []byte {
 	gRandInfo := &randInfo{}
 	gRandInfo.MixEntropy(RandBytes(32))
 
@@ -135,16 +135,16 @@ func FromECDSAPub(pub *ecdsa.PublicKey) []byte {
 	if pub == nil || pub.X == nil || pub.Y == nil {
 		return nil
 	}
-	return elliptic.Marshal(S256(), pub.X, pub.Y)
+	return elliptic.Marshal(s256(), pub.X, pub.Y)
 }
 
-// S256 returns an instance of the secp256k1 curve.
-func S256() elliptic.Curve {
+// s256 returns an instance of the secp256k1 curve.
+func s256() elliptic.Curve {
 	return btcec.S256()
 }
 
-// Keccak256 calculates and returns the Keccak256 hash of the input data.
-func Keccak256(data ...[]byte) []byte {
+// keccak256 calculates and returns the keccak256 hash of the input data.
+func keccak256(data ...[]byte) []byte {
 	d := sha3.NewLegacyKeccak256()
 	for _, b := range data {
 		d.Write(b)

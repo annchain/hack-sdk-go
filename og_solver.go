@@ -30,7 +30,7 @@ func NewOgSolver(url, kafkaUrl, privHex string) (*OgSolver, error) {
 	og.kafkaUrl = kafkaUrl
 	og.kafkaTopic = "hack-final-test"
 
-	acc, err := NewAccount(privHex)
+	acc, err := newAccount(privHex)
 	if err != nil {
 		return nil, err
 	}
@@ -308,7 +308,7 @@ func (o *OgSolver) kafkaConsume(receiver chan *TxiResp, offset int64) {
 			if txiResp.Type == TxBaseTypeNormal {
 				txMap := txiResp.Data.(map[string]interface{})
 				tx := TransactionResp{}
-				tx.FromMap(txMap)
+				tx.fromMap(txMap)
 
 				txiResp.Data = tx
 				receiver <- &txiResp
@@ -317,7 +317,7 @@ func (o *OgSolver) kafkaConsume(receiver chan *TxiResp, offset int64) {
 			if txiResp.Type == TxBaseTypeSequencer {
 				seqMap := txiResp.Data.(map[string]interface{})
 				seq := SequencerResp{}
-				seq.FromMap(seqMap)
+				seq.fromMap(seqMap)
 
 				txiResp.Data = seq
 				receiver <- &txiResp
