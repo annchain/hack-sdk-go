@@ -1,4 +1,4 @@
-package main
+package hackSDK
 
 import (
 	"bytes"
@@ -28,7 +28,7 @@ func NewOgSolver(url, kafkaUrl, privHex string) (*OgSolver, error) {
 	og := &OgSolver{}
 	og.url = url
 	og.kafkaUrl = kafkaUrl
-	og.kafkaTopic = "hack"
+	og.kafkaTopic = "hack-final-test"
 
 	acc, err := NewAccount(privHex)
 	if err != nil {

@@ -1,4 +1,4 @@
-package main
+package hackSDK
 
 type NewTxResp struct {
 	Hash string `json:"data"`
@@ -49,15 +49,22 @@ type TransactionResp struct {
 	Value     string   `json:"value"`
 }
 
-func (tr *TransactionResp) FromMap(m map[string]interface{}) {
-	tr.Type = m["type"].(int)
-	tr.Hash = m["hash"].(string)
-	tr.Parents = m["parents"].([]string)
-	tr.From = m["from"].(string)
-	tr.To = m["to"].(string)
-	tr.Nonce = m["nonce"].(uint64)
-	tr.Guarantee = m["guarantee"].(string)
-	tr.Value = m["value"].(string)
+func (t *TransactionResp) FromMap(m map[string]interface{}) {
+	t.Type = int(m["type"].(float64))
+	t.Hash = m["hash"].(string)
+
+	var parents []string
+	parentsInterface := m["parents"].([]interface{})
+	for _, p := range parentsInterface {
+		parents = append(parents, p.(string))
+	}
+	t.Parents = parents
+
+	t.From = m["from"].(string)
+	t.To = m["to"].(string)
+	t.Nonce = uint64(m["nonce"].(float64))
+	t.Guarantee = m["guarantee"].(string)
+	t.Value = m["value"].(string)
 }
 
 type QuerySequencerResp struct {
@@ -75,14 +82,21 @@ type SequencerResp struct {
 	Height   uint64   `json:"height"`
 }
 
-func (tr *SequencerResp) FromMap(m map[string]interface{}) {
-	tr.Type = m["type"].(int)
-	tr.Hash = m["hash"].(string)
-	tr.Parents = m["parents"].([]string)
-	tr.From = m["from"].(string)
-	tr.Nonce = m["nonce"].(uint64)
-	tr.Treasure = m["treasure"].(string)
-	tr.Height = m["height"].(uint64)
+func (s *SequencerResp) FromMap(m map[string]interface{}) {
+	s.Type = int(m["type"].(float64))
+	s.Hash = m["hash"].(string)
+
+	var parents []string
+	parentsInterface := m["parents"].([]interface{})
+	for _, p := range parentsInterface {
+		parents = append(parents, p.(string))
+	}
+	s.Parents = parents
+
+	s.From = m["from"].(string)
+	s.Nonce = uint64(m["nonce"].(float64))
+	s.Treasure = m["treasure"].(string)
+	s.Height = uint64(m["height"].(float64))
 }
 
 type TxiResp struct {

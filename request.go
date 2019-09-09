@@ -1,4 +1,4 @@
-package main
+package hackSDK
 
 type TransactionReq struct {
 	Parents   []string `json:"parents"`
