@@ -21,14 +21,16 @@ type OgSolver struct {
 	url        string
 	kafkaUrl   string
 	kafkaTopic string
+	token      string
 	account    *OgAccount
 }
 
-func NewOgSolver(url, kafkaUrl, privHex string) (*OgSolver, error) {
+func NewOgSolver(url, kafkaUrl, privHex, token string) (*OgSolver, error) {
 	og := &OgSolver{}
 	og.url = url
 	og.kafkaUrl = kafkaUrl
 	og.kafkaTopic = "hack-final-test"
+	og.token = token
 
 	acc, err := newAccount(privHex)
 	if err != nil {
@@ -238,7 +240,14 @@ func (o *OgSolver) queryPoolTxs(url string) (*PoolTxs, error) {
 }
 
 func (o *OgSolver) doGetRequest(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("create GET request error: %v", err)
+	}
+	req.AddCookie(&http.Cookie{Name: "token", Value: o.token})
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("do GET request error: %v", err)
 	}
@@ -258,7 +267,15 @@ func (o *OgSolver) doPostRequest(url string, reqBody interface{}) ([]byte, error
 		return nil, fmt.Errorf("marshal request body error: %v", err)
 	}
 
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBodyData))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(reqBodyData))
+	if err != nil {
+		return nil, fmt.Errorf("create GET request error: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(&http.Cookie{Name: "token", Value: o.token})
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("do POST request error: %v", err)
 	}
