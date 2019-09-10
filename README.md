@@ -26,8 +26,9 @@ func main() {
      kafkaUrl := "localhost:9092"
      // the private key of the account you want to send the tx.
      priv := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+     token := "we will offer token for each team"
      
-     ogSolver, err := hackSDK.NewOgSolver(url, kafkaUrl, priv)
+     ogSolver, err := hackSDK.NewOgSolver(url, kafkaUrl, priv, token)
      if err != nil {
      	// handle the error
      }
