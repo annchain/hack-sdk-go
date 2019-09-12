@@ -196,7 +196,7 @@ func (o *OgSolver) QueryTxsByHeight(height uint64) ([]TransactionResp, error) {
 func (o *OgSolver) queryTxs(url string) ([]TransactionResp, error) {
 	resp, err := o.doGetRequest(url)
 	if err != nil {
-		return nil, fmt.Errorf("get sequencer error: %v", err)
+		return nil, fmt.Errorf("get txs error: %v", err)
 	}
 
 	var txsResp QueryTxsResp
@@ -209,6 +209,26 @@ func (o *OgSolver) queryTxs(url string) ([]TransactionResp, error) {
 	}
 
 	return txsResp.Data, nil
+}
+
+func (o *OgSolver) QueryTxNumByHeight(height uint64) (int, error) {
+	url := o.url + "/query_tx_num?height=" + strconv.Itoa(int(height))
+
+	resp, err := o.doGetRequest(url)
+	if err != nil {
+		return 0, fmt.Errorf("get sequencer error: %v", err)
+	}
+
+	var txNumResp TxNumResp
+	err = json.Unmarshal(resp, &txNumResp)
+	if err != nil {
+		return 0, fmt.Errorf("unmarshal response to json error: %v", err)
+	}
+	if txNumResp.Err != "" {
+		return 0, fmt.Errorf("server error: %s", txNumResp.Err)
+	}
+
+	return txNumResp.Data, nil
 }
 
 func (o *OgSolver) QueryAllTipsInPool() (*PoolTxs, error) {

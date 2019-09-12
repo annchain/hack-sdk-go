@@ -33,6 +33,11 @@ type QueryTxsResp struct {
 	Err  string            `json:"err"`
 }
 
+type TxNumResp struct {
+	Data int    `json:"data"`
+	Err  string `json:"err"`
+}
+
 type QueryTransactionResp struct {
 	Data TransactionResp `json:"data"`
 	Err  string          `json:"err"`
