@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 	"testing"
+	"time"
 )
 
 func TestGenerateAccount(t *testing.T) {
@@ -16,7 +17,7 @@ func TestGenerateAccount(t *testing.T) {
 	url := "http://localhost:8000"
 	kafkaUrl := "localhost:9092"
 	priv := "af1b6df8cc06d79902029c0e446c3dc2788893185759d2308b5bb10aa0614b7d"
-	og, _ := NewOgSolver(url, kafkaUrl, priv)
+	og, _ := NewOgSolver(url, kafkaUrl, priv, "")
 
 	fmt.Println(og.Address())
 }
@@ -25,7 +26,7 @@ func TestOgSolver_QueryBalance(t *testing.T) {
 	url := "http://localhost:8000"
 	kafkaUrl := "localhost:9092"
 
-	og, _ := NewOgSolver(url, kafkaUrl, "")
+	og, _ := NewOgSolver(url, kafkaUrl, "", "")
 	resp, err := og.QueryBalance("0x8b605f016cfe161f66eb7a0d8f97d2a9b098d3cc")
 	if err != nil {
 		fmt.Println(err)
@@ -42,7 +43,7 @@ func TestOgSolver_QueryTransaction(t *testing.T) {
 	url := "http://localhost:8000"
 	kafkaUrl := "localhost:9092"
 	priv := "af1b6df8cc06d79902029c0e446c3dc2788893185759d2308b5bb10aa0614b7d"
-	og, _ := NewOgSolver(url, kafkaUrl, priv)
+	og, _ := NewOgSolver(url, kafkaUrl, priv, "")
 
 	hash := "0xa80f781e993539ca0b9b76696a1aab3e5b39e3290cdc85840ae3b90694a25e55"
 	tx, err := og.QueryTransaction(hash)
@@ -54,11 +55,13 @@ func TestOgSolver_QueryTransaction(t *testing.T) {
 }
 
 func TestOgSolver_SendTx(t *testing.T) {
-	url := "http://localhost:8000"
-	kafkaUrl := "localhost:9092"
+	url := "http://47.100.122.212:30020"
+	kafkaUrl := "47.100.222.11:30000"
 
 	priv := "af1b6df8cc06d79902029c0e446c3dc2788893185759d2308b5bb10aa0614b7d"
-	og, _ := NewOgSolver(url, kafkaUrl, priv)
+	token := "98765467890"
+
+	og, _ := NewOgSolver(url, kafkaUrl, priv, token)
 
 	nonce, err := og.QueryNonce(og.Address())
 	if err != nil {
@@ -87,4 +90,27 @@ func TestOgSolver_SendTx(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("hash: %s", hash)
+}
+
+func TestOgSolver_KafkaConsumer(t *testing.T) {
+	url := "http://47.100.122.212:30020"
+	kafkaUrl := "47.100.222.11:30000"
+
+	priv := "af1b6df8cc06d79902029c0e446c3dc2788893185759d2308b5bb10aa0614b7d"
+	token := "98765467890"
+
+	og, _ := NewOgSolver(url, kafkaUrl, priv, token)
+
+	c := og.ReceiveNewestTx()
+
+	timer := time.NewTimer(time.Second * 15)
+
+	for {
+		select {
+		case txi := <-c:
+			fmt.Println(txi)
+		case <-timer.C:
+			return
+		}
+	}
 }
