@@ -310,7 +310,7 @@ func (o *OgSolver) doPostRequest(url string, reqBody interface{}) ([]byte, error
 }
 
 func (o *OgSolver) kafkaConsume(receiver chan *TxiResp, offset int64) {
-	consumer, err := sarama.NewConsumer([]string{"localhost:9092"}, nil)
+	consumer, err := sarama.NewConsumer([]string{o.kafkaUrl}, nil)
 	if err != nil {
 		log.Printf("create consumer error: %v\n", err)
 		return

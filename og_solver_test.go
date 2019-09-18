@@ -114,3 +114,21 @@ func TestOgSolver_KafkaConsumer(t *testing.T) {
 		}
 	}
 }
+
+func TestOgSolver_TxTarget(t *testing.T) {
+	tx := Transaction{}
+	tx.From = "c4321fee1e29b13b042feab06dea55e7caf85948"
+	tx.To = EmptyAddress
+	tx.Nonce = 115
+	tx.Parents = []string{"0xba001c4e6b416268761c068a711266e05dd994e804952b0f1033025bfbb54703"}
+	tx.Guarantee = big.NewInt(200)
+	tx.Value = big.NewInt(0)
+
+	msg, err := tx.SignatureTarget()
+	if err != nil {
+		t.Fatalf("get signature target error: %v", err)
+	}
+	t.Logf("msg: %x", msg)
+
+	t.Logf("bigint bytes: %x", big.NewInt(200).Bytes())
+}

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"sort"
 
 	"github.com/annchain/OG/common/crypto/secp256k1"
 )
@@ -19,7 +20,7 @@ var (
 )
 
 type Transaction struct {
-	Parents   []string
+	Parents   StringSet
 	From      string
 	To        string
 	Nonce     uint64
@@ -27,10 +28,17 @@ type Transaction struct {
 	Value     *big.Int
 }
 
+type StringSet []string
+
+func (s StringSet) Len() int           { return len(s) }
+func (s StringSet) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s StringSet) Less(i, j int) bool { return s[i] < s[j] }
+
 func (tx *Transaction) SignatureTarget() ([]byte, error) {
 	msg := &bytes.Buffer{}
 
 	// write parents
+	sort.Sort(tx.Parents)
 	for _, parentHex := range tx.Parents {
 		pBytes, err := HexToBytes(parentHex)
 		if err != nil {
