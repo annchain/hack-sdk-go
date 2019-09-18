@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/Shopify/sarama"
 )
@@ -266,7 +267,7 @@ func (o *OgSolver) doGetRequest(url string) ([]byte, error) {
 	}
 	req.AddCookie(&http.Cookie{Name: "token", Value: o.token})
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: time.Second * 5}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("do GET request error: %v", err)
@@ -294,7 +295,7 @@ func (o *OgSolver) doPostRequest(url string, reqBody interface{}) ([]byte, error
 	req.Header.Set("Content-Type", "application/json")
 	req.AddCookie(&http.Cookie{Name: "token", Value: o.token})
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: time.Second * 5}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("do POST request error: %v", err)
