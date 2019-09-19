@@ -184,6 +184,26 @@ func (o *OgSolver) querySequencer(url string) (*SequencerResp, error) {
 	return &seqResp.Data, nil
 }
 
+func (o *OgSolver) QueryNextSequencerInfo() (*QueryNextSeqRespData, error) {
+	url := o.url + "/query_next_seq"
+	resp, err := o.doGetRequest(url)
+	if err != nil {
+		return nil, fmt.Errorf("get next seq info error: %v", err)
+	}
+
+	var nextSeqResp QueryNextSeqResp
+	err = json.Unmarshal(resp, &nextSeqResp)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal response to json error: %v", err)
+	}
+	if nextSeqResp.Err != "" {
+		return nil, fmt.Errorf("server error: %s", nextSeqResp.Err)
+	}
+
+	return &nextSeqResp.Data, nil
+
+}
+
 func (o *OgSolver) QueryTxsByAddress(address string) ([]TransactionResp, error) {
 	url := o.url + "/transactions?address=" + address
 	return o.queryTxs(url)

@@ -15,10 +15,8 @@ func NewTransactionReq(rawTx Transaction, sig string, publicKey string) Transact
 	return TransactionReq{
 		Parents:   rawTx.Parents,
 		From:      rawTx.From,
-		To:        rawTx.To,
 		Nonce:     rawTx.Nonce,
 		Guarantee: rawTx.Guarantee.String(),
-		Value:     rawTx.Value.String(),
 		Signature: sig,
 		PublicKey: publicKey,
 	}

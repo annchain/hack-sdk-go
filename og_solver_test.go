@@ -78,7 +78,6 @@ func TestOgSolver_SendTx(t *testing.T) {
 		Parents:   []string{seq.Hash},
 		From:      "0xf1b4b3de579ff16888f3340f39c45f207f2cd84d",
 		Nonce:     nonce + 1,
-		Value:     big.NewInt(0),
 		Guarantee: big.NewInt(1),
 	}
 
@@ -118,11 +117,9 @@ func TestOgSolver_KafkaConsumer(t *testing.T) {
 func TestOgSolver_TxTarget(t *testing.T) {
 	tx := Transaction{}
 	tx.From = "c4321fee1e29b13b042feab06dea55e7caf85948"
-	tx.To = EmptyAddress
 	tx.Nonce = 115
 	tx.Parents = []string{"0xba001c4e6b416268761c068a711266e05dd994e804952b0f1033025bfbb54703"}
 	tx.Guarantee = big.NewInt(200)
-	tx.Value = big.NewInt(0)
 
 	msg, err := tx.SignatureTarget()
 	if err != nil {
@@ -131,4 +128,22 @@ func TestOgSolver_TxTarget(t *testing.T) {
 	t.Logf("msg: %x", msg)
 
 	t.Logf("bigint bytes: %x", big.NewInt(200).Bytes())
+}
+
+func TestOgSolver_QueryNextSequencerInfo(t *testing.T) {
+	url := "http://47.100.122.212:30020"
+	kafkaUrl := "47.100.222.11:30000"
+
+	priv := "af1b6df8cc06d79902029c0e446c3dc2788893185759d2308b5bb10aa0614b7d"
+	token := "98765467890"
+
+	og, _ := NewOgSolver(url, kafkaUrl, priv, token)
+
+	data, err := og.QueryNextSequencerInfo()
+	if err != nil {
+		t.Fatalf("query next seq info error: %v", err)
+	}
+
+	fmt.Println(data)
+
 }

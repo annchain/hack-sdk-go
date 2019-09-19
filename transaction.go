@@ -22,10 +22,8 @@ var (
 type Transaction struct {
 	Parents   StringSet
 	From      string
-	To        string
 	Nonce     uint64
 	Guarantee *big.Int
-	Value     *big.Int
 }
 
 type StringSet []string
@@ -57,23 +55,14 @@ func (tx *Transaction) SignatureTarget() ([]byte, error) {
 	}
 	binary.Write(msg, binary.BigEndian, fromBytes)
 
-	if tx.To == "" {
-		tx.To = EmptyAddress
-	}
-	toBytes, err := HexToBytes(tx.To)
+	toBytes, err := HexToBytes(EmptyAddress)
 	if err != nil {
 		return nil, fmt.Errorf("invalid TO: %v", err)
 	}
 	binary.Write(msg, binary.BigEndian, toBytes)
 
 	// write value
-	if tx.Value == nil {
-		tx.Value = big.NewInt(0)
-	}
-	value := tx.Value.Bytes()
-	if tx.Value.Int64() == 0 {
-		value = []byte{0}
-	}
+	value := []byte{0}
 	binary.Write(msg, binary.BigEndian, value)
 
 	// write guarantee

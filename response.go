@@ -43,6 +43,11 @@ type QueryTransactionResp struct {
 	Err  string          `json:"err"`
 }
 
+type QueryTransactionsResp struct {
+	Data []TransactionResp `json:"data"`
+	Err  string            `json:"err"`
+}
+
 type TransactionResp struct {
 	Type      int      `json:"type"`
 	Hash      string   `json:"hash"`
@@ -70,6 +75,16 @@ func (t *TransactionResp) fromMap(m map[string]interface{}) {
 	t.Nonce = uint64(m["nonce"].(float64))
 	t.Guarantee = m["guarantee"].(string)
 	t.Value = m["value"].(string)
+}
+
+type QueryNextSeqResp struct {
+	Data QueryNextSeqRespData `json:"data"`
+	Err  string               `json:"err"`
+}
+
+type QueryNextSeqRespData struct {
+	Height   uint64 `json:"height"`
+	TimeLeft uint64 `json:"time_left"`
 }
 
 type QuerySequencerResp struct {
